@@ -2,6 +2,8 @@
 
 [![Build Status](https://dev.azure.com/luke-leigh/github-repo/_apis/build/status/BanterBoy.scripts-blog?branchName=master)](https://dev.azure.com/luke-leigh/github-repo/_build/latest?definitionId=2&branchName=master)
 
+[![pages-build-deployment](https://github.com/BanterBoy/scripts-blog/actions/workflows/pages/pages-build-deployment/badge.svg?branch=prod)](https://github.com/BanterBoy/scripts-blog/actions/workflows/pages/pages-build-deployment)
+
 # Maintenance Scripts
 
 This repository contains PowerShell Scripts that can be used to maintain your IT Infrastructure.
