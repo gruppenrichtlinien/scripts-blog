@@ -1,7 +1,7 @@
 Function Test-ADUserHighPrivilegeGroupMembership {
 
-    ##########################################################################################################
-    <#
+##########################################################################################################
+<#
 .SYNOPSIS
    Checks whether a user is a member of a high privileged group
 
@@ -61,10 +61,21 @@ Function Test-ADUserHighPrivilegeGroupMembership {
         [ValidateScript( { Get-ADUser -Identity $_ })] 
         $User
     )
-
     
     #Process each value supplied by the pipeline
     Process {
+
+        # Determine AdminSDHolder Groupnames by Well-Known SID:
+        $DomainSID=(Get-Addomain).DomainSID.value
+        $AccountOperators=(Get-ADGroup -Identity S-1-5-32-548).DistinguishedName
+        $Administrators=(Get-ADGroup -Identity S-1-5-32-544).DistinguishedName
+        $BackupOperators=(Get-ADGroup -Identity S-1-5-32-551).DistinguishedName
+        $CertPublishers=(Get-ADGroup -Identity "$DomainSID-517").DistinguishedName
+        $DomainAdmins=(Get-ADGroup -Identity "$DomainSID-512").DistinguishedName
+        $OrgAdmins=(Get-ADGroup -Identity "$DomainSID-519").DistinguishedName
+        $PrintOperators=(Get-ADGroup -Identity S-1-5-32-550).DistinguishedName
+        $SchemaAdmins=(Get-ADGroup -Identity "$DomainSID-518").DistinguishedName
+        $ServerOperators=(Get-ADGroup -Identity S-1-5-32-549).DistinguishedName
 
         #Ensures all variables are empty
         $Groups = $Null
@@ -77,7 +88,7 @@ Function Test-ADUserHighPrivilegeGroupMembership {
         Switch -Wildcard ($Groups) {
             
             #Search for membership of Account Operators
-            "CN=Account Operators,CN=BuiltIn*" {
+            $AccountOperators {
                 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -87,11 +98,10 @@ Function Test-ADUserHighPrivilegeGroupMembership {
 
                 }   #End of $Privs
 
-            }   #End of "CN=Account Operators,CN=BuiltIn*"
-
+            }   #End of $AccountOperators
 
             #Search for membership of Administrators
-            "CN=Administrators,CN=BuiltIn*" {
+            $Administrators {
                 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -101,11 +111,10 @@ Function Test-ADUserHighPrivilegeGroupMembership {
 
                 }   #End of $Privs
            
-            }   #End of "CN=Administrators,CN=BuiltIn*"
-
+            }   #End of $Administrators
 
             #Search for membership of Backup Operators
-            "CN=Backup Operators,CN=BuiltIn*" {
+            $BackupOperators {
                 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -115,11 +124,10 @@ Function Test-ADUserHighPrivilegeGroupMembership {
 
                 }   #End of $Privs
            
-            }   #End of "CN=Backup Operators,CN=BuiltIn*"
-
+            }   #End of $BackupOperators
 
             #Search for membership of Cert Publishers
-            "CN=Cert Publishers,CN=Users*" {
+            $CertPublishers {
                 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -129,11 +137,10 @@ Function Test-ADUserHighPrivilegeGroupMembership {
 
                 }   #End of $Privs
            
-            }   #End of "CN=Cert Publishers,CN=Users*"
-
+            }   #End of $CertPublishers
 
             #Search for membership of Domain Admins
-            "CN=Domain Admins,CN=Users*" {
+            $DomainAdmins {
                 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -143,11 +150,10 @@ Function Test-ADUserHighPrivilegeGroupMembership {
 
                 }   #End of $Privs
            
-            }   #End of "CN=Domain Admins,CN=Users*"
-
+            }   #End of $DomainAdmins
 
             #Search for membership of Enterprise Admins
-            "CN=Enterprise Admins,CN=Users*" {
+            $OrgAdmins {
                 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -157,12 +163,10 @@ Function Test-ADUserHighPrivilegeGroupMembership {
 
                 }   #End of $Privs
            
-           
-            }   #End of "CN=Enterprise Admins,CN=Users*" 
-
+            }   #End of $OrgAdmins
 
             #Search for membership of
-            "CN=Print Operators,CN=BuiltIn*" {
+            $PrintOperators {
                 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -170,14 +174,12 @@ Function Test-ADUserHighPrivilegeGroupMembership {
                     User     = $User
                     MemberOf = $Switch.Current
 
-                }   #End of $Privs
+                }   #End of $Privs           
            
-           
-            }   #End of "CN=Print Operators,CN=BuiltIn*"
-
+            }   #End of $PrintOperators
 
             #Search for membership of Schema Admins
-            "CN=Schema Admins,CN=Users*" {
+            $SchemaAdmins {
                 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -186,13 +188,11 @@ Function Test-ADUserHighPrivilegeGroupMembership {
                     MemberOf = $Switch.Current
 
                 }   #End of $Privs
-           
-           
-            }   #End of "CN=Schema Admins,CN=Users*"
-
+                      
+            }   #End of $SchemaAdmins
 
             #Search for membership of Server Operators
-            "CN=Server Operators,CN=BuiltIn*" {
+            $ServerOperators {
 
                 #Capture membership in a custom object and add to an array
                 [Array]$Privs += [PSCustomObject]@{
@@ -202,12 +202,9 @@ Function Test-ADUserHighPrivilegeGroupMembership {
 
                 }   #End of $Privs
            
-           
-            }   #End of "CN=Server Operators,CN=BuiltIn*"
-
+            }   #End of $ServerOperators
 
         }   #End of Switch -Wildcard ($Groups)
-
 
         #Return any high privilege group memberships
         If ($Privs) {
@@ -215,12 +212,8 @@ Function Test-ADUserHighPrivilegeGroupMembership {
             #Return the contents of $Privs
             $Privs
 
-
         }   #End of If ($Privs)
-
 
     }   #End of Process block
 
-
 }   #End of Function Test-ADUserHighPrivilegeGroupMembership
-
